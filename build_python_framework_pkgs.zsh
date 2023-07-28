@@ -230,10 +230,9 @@ fi
 if [ -d ${MP_BINDIR} ]; then
     /usr/bin/sudo /bin/rm -rf ${MP_BINDIR}
 fi
-/usr/bin/unzip ${MP_ZIP} -d ${MP_BINDIR}
-DL_RESULT="$?"
-if [ "${DL_RESULT}" != "0" ]; then
-    echo "Error downloading munki-pkg tool: ${DL_RESULT}" 1>&2
+
+if ! /usr/bin/unzip ${MP_ZIP} -d ${MP_BINDIR}; then
+    echo "Error downloading munki-pkg tool" >&2
     exit 1
 fi
 
