@@ -252,7 +252,7 @@ if [ -n "$2" ]; then
     "version": "$AUTOMATED_PYTHON_BUILD",
     "name": "python_${TYPE}-$AUTOMATED_PYTHON_BUILD-build.pkg",
     "install_location": "/",
-    "preserve_xattr": true,
+    "preserve_xattr": true
   }
 BUILD_INFO
   # Create the pkg
