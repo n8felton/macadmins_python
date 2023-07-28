@@ -242,7 +242,7 @@ fi
 
 if [ -n "$2" ]; then
   # Create the json file for munki-pkg (signed)
-  /bin/cat << SIGNED_JSONFILE > "$TOOLSDIR/$TYPE/build-info.json"
+  /bin/cat << BUILD_INFO > "$TOOLSDIR/$TYPE/build-info.json"
   {
     "ownership": "recommended",
     "suppress_bundle_relocation": true,
@@ -250,34 +250,13 @@ if [ -n "$2" ]; then
     "postinstall_action": "none",
     "distribution_style": true,
     "version": "$AUTOMATED_PYTHON_BUILD",
-    "name": "python_${TYPE}_signed-$AUTOMATED_PYTHON_BUILD.pkg",
+    "name": "python_${TYPE}-$AUTOMATED_PYTHON_BUILD.pkg",
     "install_location": "/",
     "preserve_xattr": true,
-    "signing_info": {
-      "identity": "$2",
-      "timestamp": true
-    }
   }
-SIGNED_JSONFILE
-  # Create the signed pkg
+BUILD_INFO
+  # Create the pkg
   "${MP_BINDIR}/munki-pkg-${MP_SHA}/munkipkg" "$TOOLSDIR/$TYPE"
-  PKG_RESULT="$?"
-  if [ "${PKG_RESULT}" != "0" ]; then
-    echo "Could not sign package: ${PKG_RESULT}" 1>&2
-  else
-    if [ -n "$5" ]; then
-      # Notarize and staple the package
-      $XCODE_NOTARY_PATH store-credentials --apple-id "opensource@macadmins.io" --team-id "T4SK8ZXCXG" --password "$NOTARY_PASS" macadminpython
-      # If these fail, it will bail on the entire process
-      $XCODE_NOTARY_PATH submit "$TOOLSDIR/$TYPE/build/python_${TYPE}_signed-$AUTOMATED_PYTHON_BUILD.pkg" --keychain-profile "macadminpython" --wait
-      $XCODE_STAPLER_PATH staple "$TOOLSDIR/$TYPE/build/python_${TYPE}_signed-$AUTOMATED_PYTHON_BUILD.pkg"
-    fi
-    # Move the signed + notarized pkg
-    /bin/mv "$TOOLSDIR/$TYPE/build/python_${TYPE}_signed-$AUTOMATED_PYTHON_BUILD.pkg" "$OUTPUTSDIR"
-  fi
-else
-  echo "no signing identity passed, skipping signed package creation"
-fi
 
 # Zip and move the framework
 ZIPFILE="Python3.framework_$TYPE-$AUTOMATED_PYTHON_BUILD.zip"

@@ -22,6 +22,7 @@ jobs:
         fetch-depth: 0
 
     - name: Install Apple Developer ID Application certificates
+      if:   github.actor != 'dependabot[bot]'
       uses: apple-actions/import-codesign-certs@8f3fb608891dd2244cdab3d69cd68c0d37a7fe93 # v2.0.0
       with:
         keychain-password: ${{ github.run_id }}
@@ -29,6 +30,7 @@ jobs:
         p12-password: ${{ secrets.APP_CERTIFICATES_P12_PASSWORD_MAOS }}
 
     - name: Install Apple Developer ID Installer certificates
+      if:   github.actor != 'dependabot[bot]'
       uses: apple-actions/import-codesign-certs@8f3fb608891dd2244cdab3d69cd68c0d37a7fe93 # v2.0.0
       with:
         create-keychain: false # do not create a new keychain for this value
@@ -39,12 +41,23 @@ jobs:
     - name: Run build package script
       run: ./build_python_framework_pkgs.zsh "$TYPE" "$DEV_INSTALLER_ID" "$DEV_APPLICATION_ID" "$PYTHON_VERSION" "${NOTARY_PASS}"
 
+    - name: Sign package
+      if:   github.actor != 'dependabot[bot]'
+      run: |
+        ./sign_pkg.zsh \
+          -a "opensource@macadmins.io" \
+          -i "${DEV_INSTALLER_ID}" \
+          -t "T4SK8ZXCXG" \
+          -w "${NOTARY_PASS}" \
+          -p "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
+
     - name: get environment variables
       id: get_env_var
       run: |
          echo "PYTHON_BUILD_VERSION=$(/bin/cat ./build_info.txt)" >> $GITHUB_ENV
 
     - name: Generate changelog
+      if:   github.actor != 'dependabot[bot]'
       id: changelog
       uses: metcalfc/changelog-generator@afdcb9470aebdb2252c0c95a1c130723c9e21f3a # v4.1
       with:
@@ -52,6 +65,7 @@ jobs:
         reverse: 'true'
 
     - name: Create Release
+      if:   github.actor != 'dependabot[bot]'
       id: create_release
       uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
       with:
@@ -83,6 +97,7 @@ jobs:
         files: ${{github.workspace}}/outputs/*.pkg
 
     - name: Upload packages
+      if:   github.actor != 'dependabot[bot]'
       uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
       with:
         name: packages
