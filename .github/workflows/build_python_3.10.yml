@@ -49,7 +49,7 @@ jobs:
         /usr/bin/productsign \
           --sign "${DEV_INSTALLER_ID}" \
           --timestamp \
-          "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}-build.pkg" "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
+          "./${TYPE}/build/python_${TYPE}-${AUTOMATED_PYTHON_BUILD}-build.pkg" "./${TYPE}/build/python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
 
     # - name: get environment variables
     #   id: get_env_var
