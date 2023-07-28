@@ -253,6 +253,7 @@ if [ -n "$2" ]; then
 BUILD_INFO
   # Create the pkg
   "${MP_BINDIR}/munki-pkg-${MP_SHA}/munkipkg" "$TOOLSDIR/$TYPE"
+fi
 
 # Zip and move the framework
 ZIPFILE="Python3.framework_$TYPE-$AUTOMATED_PYTHON_BUILD.zip"
