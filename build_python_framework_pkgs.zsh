@@ -1,5 +1,6 @@
 #!/bin/zsh
-#
+# shellcheck shell=bash
+# 
 # Build script for Python 3 frameworks
 # Adaptd from https://github.com/munki/munki/blob/Munki3dev/code/tools/build_python_framework.sh
 # IMPORTANT
