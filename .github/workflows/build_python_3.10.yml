@@ -51,54 +51,54 @@ jobs:
           --timestamp \
           "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}-build.pkg" "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
 
-    - name: get environment variables
-      id: get_env_var
-      run: |
-         echo "PYTHON_BUILD_VERSION=$(/bin/cat ./build_info.txt)" >> $GITHUB_ENV
+    # - name: get environment variables
+    #   id: get_env_var
+    #   run: |
+    #      echo "PYTHON_BUILD_VERSION=$(/bin/cat ./build_info.txt)" >> $GITHUB_ENV
 
-    - name: Generate changelog
-      if:   github.actor != 'dependabot[bot]'
-      id: changelog
-      uses: metcalfc/changelog-generator@afdcb9470aebdb2252c0c95a1c130723c9e21f3a # v4.1
-      with:
-        myToken: ${{ secrets.GITHUB_TOKEN }}
-        reverse: 'true'
+    # - name: Generate changelog
+    #   if:   github.actor != 'dependabot[bot]'
+    #   id: changelog
+    #   uses: metcalfc/changelog-generator@afdcb9470aebdb2252c0c95a1c130723c9e21f3a # v4.1
+    #   with:
+    #     myToken: ${{ secrets.GITHUB_TOKEN }}
+    #     reverse: 'true'
 
-    - name: Create Release
-      if:   github.actor != 'dependabot[bot]'
-      id: create_release
-      uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
-      with:
-        name: Python ${{env.PYTHON_BUILD_VERSION}}
-        tag_name: v${{env.PYTHON_BUILD_VERSION}}
-        draft: false
-        prerelease: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-            # Notes
-            Python ${{env.PYTHON_VERSION}} Framework
+    # - name: Create Release
+    #   if:   github.actor != 'dependabot[bot]'
+    #   id: create_release
+    #   uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
+    #   with:
+    #     name: Python ${{env.PYTHON_BUILD_VERSION}}
+    #     tag_name: v${{env.PYTHON_BUILD_VERSION}}
+    #     draft: false
+    #     prerelease: true
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     body: |
+    #         # Notes
+    #         Python ${{env.PYTHON_VERSION}} Framework
 
-            ## Changes
-            - Upgraded Python to 3.10.9
-            **Note: Some of these updates may have breaking changes. Always test your code before deploying to production!**
+    #         ## Changes
+    #         - Upgraded Python to 3.10.9
+    #         **Note: Some of these updates may have breaking changes. Always test your code before deploying to production!**
             
-            Please see the `requirements_recommended.txt` for the current libraries being used.
+    #         Please see the `requirements_recommended.txt` for the current libraries being used.
             
-            ${{ steps.changelog.outputs.changelog }}
+    #         ${{ steps.changelog.outputs.changelog }}
 
-            # Flavors of Python
-            At this time, the automated build process will **only** create the Recommended package
+    #         # Flavors of Python
+    #         At this time, the automated build process will **only** create the Recommended package
 
-            ## Recommended
-            This is a Python.framework that contains everything from minimal, and a few libraries that various well known open source projects require.
+    #         ## Recommended
+    #         This is a Python.framework that contains everything from minimal, and a few libraries that various well known open source projects require.
 
-            ## Signing/Notarization
-            The signed package is fully notarized, including the Python.framework file
-        files: ${{github.workspace}}/outputs/*.pkg
+    #         ## Signing/Notarization
+    #         The signed package is fully notarized, including the Python.framework file
+    #     files: ${{github.workspace}}/outputs/*.pkg
 
-    - name: Upload packages
-      if:   github.actor != 'dependabot[bot]'
-      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        name: packages
-        path: outputs/
+    # - name: Upload packages
+    #   if:   github.actor != 'dependabot[bot]'
+    #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+    #   with:
+    #     name: packages
+    #     path: outputs/
