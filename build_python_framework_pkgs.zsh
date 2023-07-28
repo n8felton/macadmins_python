@@ -250,7 +250,7 @@ if [ -n "$2" ]; then
     "postinstall_action": "none",
     "distribution_style": true,
     "version": "$AUTOMATED_PYTHON_BUILD",
-    "name": "python_${TYPE}-$AUTOMATED_PYTHON_BUILD.pkg",
+    "name": "python_${TYPE}-$AUTOMATED_PYTHON_BUILD-build.pkg",
     "install_location": "/",
     "preserve_xattr": true,
   }
