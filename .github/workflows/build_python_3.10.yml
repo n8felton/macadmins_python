@@ -46,7 +46,7 @@ jobs:
     - name: Sign package
       if:   github.actor != 'dependabot[bot]'
       run: |
-        /usr/bin/productsign
+        /usr/bin/productsign \
           --sign "${DEV_INSTALLER_ID}" \
           --timestamp \
           "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}-build.pkg" "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
