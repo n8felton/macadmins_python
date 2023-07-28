@@ -231,10 +231,7 @@ if [ -d ${MP_BINDIR} ]; then
     /usr/bin/sudo /bin/rm -rf ${MP_BINDIR}
 fi
 
-if ! /usr/bin/unzip ${MP_ZIP} -d ${MP_BINDIR}; then
-    echo "Error downloading munki-pkg tool" >&2
-    exit 1
-fi
+/usr/bin/unzip ${MP_ZIP} -d ${MP_BINDIR}
 
 # Create outputs folder
 /bin/mkdir -p "$TOOLSDIR/outputs"
