@@ -46,12 +46,10 @@ jobs:
     - name: Sign package
       if:   github.actor != 'dependabot[bot]'
       run: |
-        ./sign_pkg.zsh \
-          -a "${DEV_APPLE_ID}" \
-          -i "${DEV_INSTALLER_ID}" \
-          -t "${DEV_TEAM_ID}" \
-          -w "${NOTARY_PASS}" \
-          -p "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
+        /usr/bin/productsign
+          --sign "${DEV_INSTALLER_ID}" \
+          --timestamp \
+          "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}-build.pkg" "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
 
     - name: get environment variables
       id: get_env_var
