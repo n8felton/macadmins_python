@@ -2,6 +2,8 @@ name: Build Python 3.10
 
 env:
   TYPE: "recommended"
+  DEV_APPLE_ID: ${{ secrets.DEV_APPLE_ID_MAOS }}
+  DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID_MAOS }}
   DEV_INSTALLER_ID: "Developer ID Installer: Mac Admins Open Source (T4SK8ZXCXG)"
   DEV_APPLICATION_ID: "Developer ID Application: Mac Admins Open Source (T4SK8ZXCXG)"
   NOTARY_PASS: ${{ secrets.NOTARY_PASS }}
@@ -45,9 +47,9 @@ jobs:
       if:   github.actor != 'dependabot[bot]'
       run: |
         ./sign_pkg.zsh \
-          -a "opensource@macadmins.io" \
+          -a "${DEV_APPLE_ID}" \
           -i "${DEV_INSTALLER_ID}" \
-          -t "T4SK8ZXCXG" \
+          -t "${DEV_TEAM_ID}" \
           -w "${NOTARY_PASS}" \
           -p "python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
 
