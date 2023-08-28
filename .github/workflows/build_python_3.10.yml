@@ -57,7 +57,7 @@ jobs:
       run: make pkgbuild
 
     - name: Sign the PKG
-      run: make productbuild
+      run: make productsign
 
     # - name: get environment variables
     #   id: get_env_var
