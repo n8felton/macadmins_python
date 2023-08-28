@@ -15,9 +15,9 @@ ifndef DEV_INSTALLER_ID
   $(info DEV_INSTALLER_ID is not set. Try `export DEV_INSTALLER_ID="Developer ID Installer: <CORP>"`)
 endif
 
-BREW_BIN := $$(which brew)
-BREW_LIST = $$($(BREW_BIN) list)
-CONSOLEUSER=$(/usr/bin/stat -f "%Su" /dev/console)
+BREW_BIN := $(shell which brew)
+BREW_LIST = $(shell $(BREW_BIN) list)
+CONSOLEUSER := $(/usr/bin/stat -f "%Su" /dev/console)
 
 RP_SHA := fb4dd9b024b249c71713f14d887f4bcea78aa8b0
 RP_DIR := /tmp/relocatable-python
@@ -150,5 +150,5 @@ clean_managedframeworks_python_dir:
 
 clean_brew:
 ifeq ($(CI),true)
-	@echo $(BREW_BIN) remove $(BREW_LIST)
+	@$(BREW_BIN) remove $(BREW_LIST)
 endif
