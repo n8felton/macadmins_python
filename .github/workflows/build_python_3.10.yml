@@ -38,62 +38,72 @@ jobs:
         p12-file-base64: ${{ secrets.PKG_CERTIFICATES_P12_MAOS }}
         p12-password: ${{ secrets.PKG_CERTIFICATES_P12_PASSWORD_MAOS }}
 
-    - name: Run build package script
-      run: ./build_python_framework_pkgs.zsh "$TYPE" "$DEV_INSTALLER_ID" "$DEV_APPLICATION_ID" "$PYTHON_VERSION" "${NOTARY_PASS}"
+    - name: Ensure a clean build environment
+      run: make clean
 
-    - name: Sign package
-      if: ${{ github.actor != 'dependabot[bot]' }}
-      run: |
-        /usr/bin/productsign \
-          --sign "${DEV_INSTALLER_ID}" \
-          --timestamp \
-          "./${TYPE}/build/python_${TYPE}-${AUTOMATED_PYTHON_BUILD}-build.pkg" "./${TYPE}/build/python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
+    - name: Build Mac Admins Managed Python
+      run: make build
 
-    - name: get environment variables
-      id: get_env_var
-      run: |
-         echo "PYTHON_BUILD_VERSION=$(/bin/cat ./build_info.txt)" >> $GITHUB_ENV
+    - name: Verify all files are Universal
+      run: make verify-universal
 
-    - name: Generate changelog
-      id: changelog
-      uses: metcalfc/changelog-generator@afdcb9470aebdb2252c0c95a1c130723c9e21f3a # v4.1
-      with:
-        myToken: ${{ secrets.GITHUB_TOKEN }}
-        reverse: 'true'
+    - name: Codesign all Python files
+      run: make codesign
 
-    - name: Create Release
-      id: create_release
-      uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
-      with:
-        name: Python ${{env.PYTHON_BUILD_VERSION}}
-        tag_name: v${{env.PYTHON_BUILD_VERSION}}
-        draft: false
-        prerelease: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-            # Notes
-            Python ${{env.PYTHON_VERSION}} Framework
+    - name: Verify some codesign information
+      run: make verify-codesign
 
-            ## Changes
-            - Upgraded Python to 3.10.9
-            **Note: Some of these updates may have breaking changes. Always test your code before deploying to production!**
+    - name: Create a PKG
+      run: make pkgbuild
+
+    - name: Sign the PKG
+      run: make productbuild
+
+    # - name: get environment variables
+    #   id: get_env_var
+    #   run: |
+    #      echo "PYTHON_BUILD_VERSION=$(/bin/cat ./build_info.txt)" >> $GITHUB_ENV
+
+    # - name: Generate changelog
+    #   id: changelog
+    #   uses: metcalfc/changelog-generator@afdcb9470aebdb2252c0c95a1c130723c9e21f3a # v4.1
+    #   with:
+    #     myToken: ${{ secrets.GITHUB_TOKEN }}
+    #     reverse: 'true'
+
+    # - name: Create Release
+    #   id: create_release
+    #   uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
+    #   with:
+    #     name: Python ${{env.PYTHON_BUILD_VERSION}}
+    #     tag_name: v${{env.PYTHON_BUILD_VERSION}}
+    #     draft: false
+    #     prerelease: true
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     body: |
+    #         # Notes
+    #         Python ${{env.PYTHON_VERSION}} Framework
+
+    #         ## Changes
+    #         - Upgraded Python to 3.10.9
+    #         **Note: Some of these updates may have breaking changes. Always test your code before deploying to production!**
             
-            Please see the `requirements_recommended.txt` for the current libraries being used.
+    #         Please see the `requirements_recommended.txt` for the current libraries being used.
             
-            ${{ steps.changelog.outputs.changelog }}
+    #         ${{ steps.changelog.outputs.changelog }}
 
-            # Flavors of Python
-            At this time, the automated build process will **only** create the Recommended package
+    #         # Flavors of Python
+    #         At this time, the automated build process will **only** create the Recommended package
 
-            ## Recommended
-            This is a Python.framework that contains everything from minimal, and a few libraries that various well known open source projects require.
+    #         ## Recommended
+    #         This is a Python.framework that contains everything from minimal, and a few libraries that various well known open source projects require.
 
-            ## Signing/Notarization
-            The signed package is fully notarized, including the Python.framework file
-        files: ${{github.workspace}}/outputs/*.pkg
+    #         ## Signing/Notarization
+    #         The signed package is fully notarized, including the Python.framework file
+    #     files: ${{github.workspace}}/outputs/*.pkg
 
-    - name: Upload packages
-      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        name: packages
-        path: outputs/
+    # - name: Upload packages
+    #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+    #   with:
+    #     name: packages
+    #     path: outputs/
