@@ -8,6 +8,7 @@ env:
   DEV_INSTALLER_ID: ${{ vars.DEV_INSTALLER_ID }}
   NOTARY_PASS: ${{ secrets.NOTARY_PASS }}
   PYTHON_VERSION: "3.10.9"
+  PYTHONUNBUFFERED: true
 
 on:
   workflow_dispatch:
