@@ -24,5 +24,5 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Run build package script
-      run: ./build_python_framework_pkgs.zsh "$TYPE" "$DEV_INSTALLER_ID" "$DEV_APPLICATION_ID" "$PYTHON_VERSION" "${NOTARY_PASS}"
+    - name: Build as dependabot
+      run: make dependabot
