@@ -1,3 +1,4 @@
+SHELL := /bin/zsh
 ifndef TYPE
   TYPE ?= minimal
   $(info TYPE is not set. Defaulting to "$(TYPE)".)
@@ -49,8 +50,8 @@ PYTHON_BIN_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/bin" -type
 PYTHON_BIN_FILES += $(PAYLOAD_PYTHON_VERS_PATH)/Python
 PYTHON_BIN_FILES += $(PAYLOAD_PYTHON_VERS_PATH)/Resources/Python.app/Contents/MacOS/Python
 PYTHON_LIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -perm -u=x 2>/dev/null)
-PYTHON_DYLIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name "*.dylib" 2>/dev/null)
-PYTHON_SO_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name "*.so" 2>/dev/null)
+PYTHON_DYLIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.dylib' 2>/dev/null)
+PYTHON_SO_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.so' 2>/dev/null)
 
 .PHONY: all
 all: clean build
