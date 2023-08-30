@@ -107,10 +107,10 @@ verify-codesign: $(lastword $(PYTHON_LIB_FILES)) $(lastword $(PYTHON_DYLIB_FILES
 .PHONY: pkgbuild
 pkgbuild: $(OUTPUT_PKG_PATH)-build.pkg
 
-$(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework
+$(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework verify-universal codesign verify-codesign
 	@$(MKDIR)
 	@mkdir -p $(PAYLOAD_PATH)/usr/local/bin/
-	@/bin/ln -s $(PYTHON_BIN) $(PAYLOAD_PATH)/usr/local/bin/managed_python3
+	@/bin/ln -sf $(PYTHON_BIN) $(PAYLOAD_PATH)/usr/local/bin/managed_python3
 	@/usr/bin/sudo /usr/sbin/chown -R ${CONSOLEUSER}:wheel $(PAYLOAD_PATH)
 	@/usr/bin/pkgbuild \
 	--analyze \
@@ -127,14 +127,57 @@ $(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.f
 	"$(OUTPUT_PKG_PATH)-build.pkg"
 
 .PHONY: productsign
-productsign: $(OUTPUT_PKG_PATH).pkg
+productsign: $(OUTPUT_PKG_PATH)-signed.pkg
 
-$(OUTPUT_PKG_PATH).pkg: $(OUTPUT_PKG_PATH)-build.pkg
-	/usr/bin/productsign \
+$(OUTPUT_PKG_PATH)-signed.pkg: $(OUTPUT_PKG_PATH)-build.pkg
+	@/usr/bin/productsign \
 	--timestamp \
 	--sign "$(DEV_INSTALLER_ID)" \
 	"$(OUTPUT_PKG_PATH)-build.pkg" \
-	"$(OUTPUT_PKG_PATH).pkg"
+	"$(OUTPUT_PKG_PATH)-signed.pkg"
+
+.PHONY: notarize
+notarize: $(OUTPUT_PKG_PATH).pkg
+
+$(OUTPUT_PKG_PATH).pkg: $(OUTPUT_PKG_PATH)-signed.pkg
+ifndef DEV_APPLE_ID
+	$(error DEV_APPLE_ID is not set. Try `export DEV_APPLE_ID="tapple@apple.com"`)
+endif
+ifndef DEV_TEAM_ID
+	$(error DEV_TEAM_ID is not set. Try `export DEV_TEAM_ID="8XCUU22SN2"`)
+endif
+ifndef NOTARY_PASS
+	$(error NOTARY_PASS is not set. Try `export NOTARY_PASS="T1m4ppl3"`)
+endif
+define GET_JOB_ID 
+	$$(/usr/bin/xcrun notarytool \
+		history \
+		--keychain-profile $(DEV_TEAM_ID) \
+		--output-format json \
+		| jq -r '.history[0].id' )
+endef
+	@/usr/bin/ditto $(OUTPUT_PKG_PATH)-signed.pkg $(OUTPUT_PKG_PATH).pkg
+	@/usr/bin/xcrun notarytool \
+	store-credentials \
+	$(DEV_TEAM_ID) \
+	--apple-id $(DEV_APPLE_ID) \
+	--password $(NOTARY_PASS) \
+	--team-id $(DEV_TEAM_ID)
+
+	@/usr/bin/xcrun notarytool \
+	submit \
+	$(OUTPUT_PKG_PATH).pkg \
+	--apple-id $(DEV_APPLE_ID) \
+	--password $(NOTARY_PASS) \
+	--team-id $(DEV_TEAM_ID) \
+	--wait
+
+	@/usr/bin/xcrun notarytool \
+	log \
+	$(call GET_JOB_ID) \
+	--keychain-profile $(DEV_TEAM_ID) \
+	$(OUTPUT_DIR)/notarytool_log.json
+
 
 $(MANAGEDFRAMEWORKS_PYTHON_PATH):
 	@/usr/bin/sudo /bin/mkdir -p -m 777 "$(@D)"
