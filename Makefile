@@ -55,7 +55,7 @@ PYTHON_LIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type
 
 .PHONY: all
 all: clean build
-	$(MAKE) verify-universal codesign verify-codesign pkgbuild productsign
+	$(MAKE) verify-universal codesign verify-codesign pkgbuild productsign notarize
 
 .PHONY: dependabot
 dependabot: clean build verify-universal
@@ -107,7 +107,7 @@ verify-codesign: $(lastword $(PYTHON_LIB_FILES)) $(lastword $(PYTHON_BIN_FILES))
 .PHONY: pkgbuild
 pkgbuild: $(OUTPUT_PKG_PATH)-build.pkg
 
-$(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework verify-universal codesign verify-codesign
+$(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework
 	@$(MKDIR)
 	@mkdir -p $(PAYLOAD_PATH)/usr/local/bin/
 	@/bin/ln -sf $(PYTHON_BIN) $(PAYLOAD_PATH)/usr/local/bin/managed_python3
