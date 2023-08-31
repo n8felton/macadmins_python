@@ -50,8 +50,8 @@ PYTHON_BIN_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/bin" -type
 PYTHON_BIN_FILES += $(PAYLOAD_PYTHON_VERS_PATH)/Resources/Python.app/Contents/MacOS/Python
 PYTHON_BIN_FILES += $(PAYLOAD_PYTHON_VERS_PATH)/Python
 PYTHON_LIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -perm -u=x 2>/dev/null)
-PYTHON_DYLIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.dylib' 2>/dev/null)
-PYTHON_SO_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.so' 2>/dev/null)
+# PYTHON_DYLIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.dylib' 2>/dev/null)
+# PYTHON_SO_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.so' 2>/dev/null)
 
 .PHONY: all
 all: clean build
@@ -78,13 +78,13 @@ $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework: $(MANAGEDFRAMEWORKS_
 	@echo "PYTHON_BUILD_VERSION=$(PYTHON_BUILD_VERSION)" >> $$GITHUB_ENV
 
 .PHONY: verify-universal
-verify-universal: $(PYTHON_LIB_FILES) $(PYTHON_DYLIB_FILES) $(PYTHON_SO_FILES) $(PYTHON_BIN_FILES)
+verify-universal: $(PYTHON_LIB_FILES) $(PYTHON_BIN_FILES)
 	$(info Verifying files are Universal)
 	@/usr/bin/file $^ | /usr/bin/grep "2 architectures" 1>/dev/null || (echo "Not all files are Universal"; exit $$?)
 	$(info $(words $^) files found and verified as Universal)
 
 .PHONY: codesign
-codesign: $(PYTHON_LIB_FILES) $(PYTHON_DYLIB_FILES) $(PYTHON_SO_FILES) $(PYTHON_BIN_FILES)
+codesign: $(PYTHON_LIB_FILES) $(PYTHON_BIN_FILES)
 	@/usr/bin/codesign \
 	--force \
 	--preserve-metadata=identifier,entitlements,flags,runtime \
@@ -93,7 +93,7 @@ codesign: $(PYTHON_LIB_FILES) $(PYTHON_DYLIB_FILES) $(PYTHON_SO_FILES) $(PYTHON_
 	$^
 
 .PHONY: verify-codesign
-verify-codesign: $(lastword $(PYTHON_LIB_FILES)) $(lastword $(PYTHON_DYLIB_FILES)) $(lastword $(PYTHON_SO_FILES)) $(lastword $(PYTHON_BIN_FILES))
+verify-codesign: $(lastword $(PYTHON_LIB_FILES)) $(lastword $(PYTHON_BIN_FILES))
 	@/usr/bin/codesign \
 	--display \
 	--verbose=2 \
