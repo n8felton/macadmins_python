@@ -69,11 +69,17 @@ jobs:
     #     myToken: ${{ secrets.GITHUB_TOKEN }}
     #     reverse: 'true'
 
-    - name: Upload artifacts
+    - name: Upload packages
       uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
       with:
-        name: artifacts
-        path: output/
+        name: packages
+        path: output/*.pkg
+
+    - name: Upload logs
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+      with:
+        name: logs
+        path: output/*.log
 
     - name: Create Release
       id: create_release
