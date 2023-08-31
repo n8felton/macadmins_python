@@ -209,6 +209,7 @@ clean_MANAGEDFRAMEWORKS_PYTHON_PATH:
 clean_brew:
 ifdef CI
 	@$(BREW_BIN) remove $(BREW_LIST)
+	@$(BREW_BIN) install jq
 endif
 
 clean_github_env:
