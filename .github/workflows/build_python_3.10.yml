@@ -69,39 +69,37 @@ jobs:
     #     myToken: ${{ secrets.GITHUB_TOKEN }}
     #     reverse: 'true'
 
-    # - name: Create Release
-    #   id: create_release
-    #   uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
-    #   with:
-    #     name: Python ${{env.PYTHON_BUILD_VERSION}}
-    #     tag_name: v${{env.PYTHON_BUILD_VERSION}}
-    #     draft: false
-    #     prerelease: true
-    #     token: ${{ secrets.GITHUB_TOKEN }}
-    #     body: |
-    #         # Notes
-    #         Python ${{env.PYTHON_VERSION}} Framework
+    - name: Upload artifacts
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+      with:
+        name: artifacts
+        path: output/
 
-    #         ## Changes
-    #         - Upgraded Python to 3.10.9
-    #         **Note: Some of these updates may have breaking changes. Always test your code before deploying to production!**
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
+      with:
+        name: Python ${{env.PYTHON_BUILD_VERSION}}
+        tag_name: v${{env.PYTHON_BUILD_VERSION}}
+        draft: false
+        prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        body: |
+            # Notes
+            Python ${{env.PYTHON_VERSION}} Framework
+
+            ## Changes
+            - Upgraded Python to 3.10.9
+            **Note: Some of these updates may have breaking changes. Always test your code before deploying to production!**
             
-    #         Please see the `requirements_recommended.txt` for the current libraries being used.
+            Please see the `requirements_recommended.txt` for the current libraries being used.
             
-    #         ${{ steps.changelog.outputs.changelog }}
+            # Flavors of Python
+            At this time, the automated build process will **only** create the Recommended package
 
-    #         # Flavors of Python
-    #         At this time, the automated build process will **only** create the Recommended package
+            ## Recommended
+            This is a Python.framework that contains everything from minimal, and a few libraries that various well known open source projects require.
 
-    #         ## Recommended
-    #         This is a Python.framework that contains everything from minimal, and a few libraries that various well known open source projects require.
-
-    #         ## Signing/Notarization
-    #         The signed package is fully notarized, including the Python.framework file
-    #     files: ${{github.workspace}}/outputs/*.pkg
-
-    # - name: Upload packages
-    #   uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-    #   with:
-    #     name: packages
-    #     path: outputs/
+            ## Signing/Notarization
+            The signed package is fully notarized, including the Python.framework file
+        files: ${{github.workspace}}/output/*.pkg
