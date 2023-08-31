@@ -135,6 +135,7 @@ $(OUTPUT_PKG_PATH)-signed.pkg: $(OUTPUT_PKG_PATH)-build.pkg
 	--sign "$(DEV_INSTALLER_ID)" \
 	"$(OUTPUT_PKG_PATH)-build.pkg" \
 	"$(OUTPUT_PKG_PATH)-signed.pkg"
+	@/bin/rm "$(OUTPUT_PKG_PATH)-build.pkg"
 
 .PHONY: notarize
 notarize: $(OUTPUT_PKG_PATH).pkg
@@ -156,7 +157,7 @@ define GET_JOB_ID
 		--output-format json \
 		| jq -r '.history[0].id' )
 endef
-	@/usr/bin/ditto $(OUTPUT_PKG_PATH)-signed.pkg $(OUTPUT_PKG_PATH).pkg
+	@/bin/mv $(OUTPUT_PKG_PATH)-signed.pkg $(OUTPUT_PKG_PATH).pkg
 	@/usr/bin/xcrun notarytool \
 	store-credentials \
 	$(DEV_TEAM_ID) \
