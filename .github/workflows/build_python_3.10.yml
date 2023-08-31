@@ -59,10 +59,8 @@ jobs:
     - name: Sign the PKG
       run: make productsign
 
-    # - name: get environment variables
-    #   id: get_env_var
-    #   run: |
-    #      echo "PYTHON_BUILD_VERSION=$(/bin/cat ./build_info.txt)" >> $GITHUB_ENV
+    - name: Notarize the PKG
+      run: make notarize
 
     # - name: Generate changelog
     #   id: changelog
