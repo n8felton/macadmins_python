@@ -17,7 +17,6 @@ on:
 jobs:
   build:
     runs-on: macos-12
-    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
     - name: Checkout python repo
       uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
