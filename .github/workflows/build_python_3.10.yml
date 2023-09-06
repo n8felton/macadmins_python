@@ -14,6 +14,9 @@ on:
   workflow_dispatch:
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: macos-12
@@ -39,32 +42,53 @@ jobs:
         p12-file-base64: ${{ secrets.PKG_CERTIFICATES_P12_MAOS }}
         p12-password: ${{ secrets.PKG_CERTIFICATES_P12_PASSWORD_MAOS }}
 
-    - name: Run build package script
-      run: ./build_python_framework_pkgs.zsh "$TYPE" "$DEV_INSTALLER_ID" "$DEV_APPLICATION_ID" "$PYTHON_VERSION" "${NOTARY_PASS}"
+    - name: Ensure a clean build environment
+      run: make clean
 
-    - name: Sign package
-      if: ${{ github.actor != 'dependabot[bot]' }}
-      run: |
-        /usr/bin/productsign \
-          --sign "${DEV_INSTALLER_ID}" \
-          --timestamp \
-          "./${TYPE}/build/python_${TYPE}-${AUTOMATED_PYTHON_BUILD}-build.pkg" "./${TYPE}/build/python_${TYPE}-${AUTOMATED_PYTHON_BUILD}.pkg"
+    - name: Build Mac Admins Managed Python
+      run: make build
 
-    - name: get environment variables
-      id: get_env_var
-      run: |
-         echo "PYTHON_BUILD_VERSION=$(/bin/cat ./build_info.txt)" >> $GITHUB_ENV
+    - name: Verify all files are Universal
+      run: make verify-universal
 
-    - name: Generate changelog
-      id: changelog
-      uses: metcalfc/changelog-generator@afdcb9470aebdb2252c0c95a1c130723c9e21f3a # v4.1
+    - name: Codesign all Python files
+      run: make codesign
+
+    - name: Verify some codesign information
+      run: make verify-codesign
+
+    - name: Create a PKG
+      run: make pkgbuild
+
+    - name: Sign the PKG
+      run: make productsign
+
+    - name: Notarize the PKG
+      run: make notarize
+
+    # - name: Generate changelog
+    #   id: changelog
+    #   uses: metcalfc/changelog-generator@afdcb9470aebdb2252c0c95a1c130723c9e21f3a # v4.1
+    #   with:
+    #     myToken: ${{ secrets.GITHUB_TOKEN }}
+    #     reverse: 'true'
+
+    - name: Upload packages
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
       with:
-        myToken: ${{ secrets.GITHUB_TOKEN }}
-        reverse: 'true'
+        name: packages
+        path: output/*.pkg
+
+    - name: Upload logs
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+      with:
+        name: logs
+        path: output/notarytool_log.json
 
     - name: Create Release
+      if: startsWith(github.event.ref, 'refs/tags/v')
       id: create_release
-      uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
+      uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
       with:
         name: Python ${{env.PYTHON_BUILD_VERSION}}
         tag_name: v${{env.PYTHON_BUILD_VERSION}}
@@ -81,8 +105,6 @@ jobs:
             
             Please see the `requirements_recommended.txt` for the current libraries being used.
             
-            ${{ steps.changelog.outputs.changelog }}
-
             # Flavors of Python
             At this time, the automated build process will **only** create the Recommended package
 
@@ -91,10 +113,4 @@ jobs:
 
             ## Signing/Notarization
             The signed package is fully notarized, including the Python.framework file
-        files: ${{github.workspace}}/outputs/*.pkg
-
-    - name: Upload packages
-      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-      with:
-        name: packages
-        path: outputs/
+        files: ${{github.workspace}}/output/*.pkg

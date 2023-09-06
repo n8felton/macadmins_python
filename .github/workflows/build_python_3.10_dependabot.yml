@@ -1,4 +1,4 @@
-name: Dependabot - Build Python 3.10
+name: "[Dependabot] Build Python 3.10"
 
 env:
   TYPE: "recommended"
@@ -17,13 +17,40 @@ on:
 jobs:
   build:
     runs-on: macos-12
-    if: ${{ github.actor == 'dependabot[bot]' }}
-
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
     - name: Checkout python repo
       uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f # v3.4.0
       with:
         fetch-depth: 0
 
-    - name: Build as dependabot
-      run: make dependabot
+    - name: Ensure a clean build environment
+      run: make clean
+
+    - name: Build Mac Admins Managed Python
+      run: make build
+
+    - name: Verify all files are Universal
+      run: make verify-universal
+
+    - name: Codesign all Python files
+      run: make codesign
+
+    - name: Verify some codesign information
+      run: make verify-codesign
+
+    - name: Create a PKG
+      run: make pkgbuild
+
+    # - name: Generate changelog
+    #   id: changelog
+    #   uses: metcalfc/changelog-generator@afdcb9470aebdb2252c0c95a1c130723c9e21f3a # v4.1
+    #   with:
+    #     myToken: ${{ secrets.GITHUB_TOKEN }}
+    #     reverse: 'true'
+
+    - name: Upload packages
+      uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+      with:
+        name: packages
+        path: output/*.pkg
