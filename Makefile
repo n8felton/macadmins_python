@@ -1,4 +1,7 @@
 SHELL := /bin/zsh
+ifndef GITHUB_ENV
+  GITHUB_ENV ?= /tmp/GITHUB_ENV
+endif
 ifndef TYPE
   TYPE ?= minimal
   $(info TYPE is not set. Defaulting to "$(TYPE)".)
@@ -58,8 +61,8 @@ all: clean build
 	$(MAKE) verify-universal codesign verify-codesign pkgbuild productsign notarize
 
 .PHONY: dependabot
-dependabot: clean build verify-universal
-	$(MAKE) verify-universal
+dependabot: clean build
+	$(MAKE) verify-universal codesign verify-codesign pkgbuild
 
 .PHONY: build
 build: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework
@@ -75,7 +78,7 @@ $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework: $(MANAGEDFRAMEWORKS_
 	--pip-requirements requirements_$(TYPE).txt \
 	--destination "$(MANAGEDFRAMEWORKS_PYTHON_PATH)"
 	@/usr/bin/ditto "$(MANAGEDFRAMEWORKS_PYTHON_PATH)/Python.framework" "$(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework"
-	@echo "PYTHON_BUILD_VERSION=$(PYTHON_BUILD_VERSION)" >> $$GITHUB_ENV
+	@echo "PYTHON_BUILD_VERSION=$(PYTHON_BUILD_VERSION)" >> $(GITHUB_ENV)
 
 .PHONY: verify-universal
 verify-universal: $(PYTHON_LIB_FILES) $(PYTHON_BIN_FILES)
@@ -214,6 +217,5 @@ endif
 
 clean_github_env:
 ifndef CI
-	@/bin/rm -rf /tmp/GITHUB_ENV
-	@export GITHUB_ENV=/tmp/GITHUB_ENV 
+	@/bin/rm -rf $(GITHUB_ENV)
 endif
