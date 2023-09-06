@@ -2,11 +2,6 @@ name: "[Dependabot] Build Python 3.10"
 
 env:
   TYPE: "recommended"
-  DEV_APPLE_ID: ${{ secrets.DEV_APPLE_ID_MAOS }}
-  DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID_MAOS }}
-  DEV_APPLICATION_ID: ${{ vars.DEV_APPLICATION_ID  }}
-  DEV_INSTALLER_ID: ${{ vars.DEV_INSTALLER_ID }}
-  NOTARY_PASS: ${{ secrets.NOTARY_PASS }}
   PYTHON_VERSION: "3.10.9"
   PYTHONUNBUFFERED: true
 
