@@ -15,7 +15,7 @@ ifndef DEV_APPLICATION_ID
   $(info DEV_APPLICATION_ID is not set. Try `export DEV_APPLICATION_ID="Developer ID Application: <CORP>"`)
 endif
 ifndef DEV_INSTALLER_ID
-  DEV_APPLICATION_ID ?= -
+  DEV_INSTALLER_ID ?= -
   $(info DEV_INSTALLER_ID is not set. Try `export DEV_INSTALLER_ID="Developer ID Installer: <CORP>"`)
 endif
 
