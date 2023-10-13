@@ -138,7 +138,6 @@ $(OUTPUT_PKG_PATH)-signed.pkg: $(OUTPUT_PKG_PATH)-build.pkg
 	--sign "$(DEV_INSTALLER_ID)" \
 	"$(OUTPUT_PKG_PATH)-build.pkg" \
 	"$(OUTPUT_PKG_PATH)-signed.pkg"
-	@/bin/rm "$(OUTPUT_PKG_PATH)-build.pkg"
 
 .PHONY: notarize
 notarize: $(OUTPUT_PKG_PATH).pkg
