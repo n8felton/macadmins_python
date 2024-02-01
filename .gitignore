@@ -9,3 +9,6 @@ opinionated/*
 recommended/*
 outputs/*
 build_info.txt
+
+build/*
+output/*
