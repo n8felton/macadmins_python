@@ -57,11 +57,11 @@ PYTHON_LIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type
 # PYTHON_SO_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.so' 2>/dev/null)
 
 .PHONY: all
-all: clean build
+all: build
 	$(MAKE) verify-universal codesign verify-codesign pkgbuild productsign notarize
 
 .PHONY: dependabot
-dependabot: clean build
+dependabot: build
 	$(MAKE) verify-universal codesign verify-codesign pkgbuild
 
 .PHONY: build
