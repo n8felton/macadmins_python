@@ -190,8 +190,8 @@ $(RP_DIR)/make_relocatable_python_framework.py:
 	@/usr/bin/tar -xz --strip-components=1 -C $(RP_DIR) -f /tmp/relocatable-python.tar.gz
 
 
-.PHONY: clean clean_pip_cache clean_MANAGEDFRAMEWORKS_PYTHON_PATH clean_brew clean_github_env
-clean: clean_pip_cache clean_MANAGEDFRAMEWORKS_PYTHON_PATH clean_brew clean_github_env
+.PHONY: clean clean_pip_cache clean_managedframeworks_python_path clean_brew clean_github_env
+clean: clean_pip_cache clean_managedframeworks_python_path clean_brew clean_github_env
 	$(info Removing $(BUILD_DIR) directory)
 	@rm -rf $(BUILD_DIR)
 	$(info Removing $(RP_DIR) directory)
@@ -203,7 +203,7 @@ clean_pip_cache:
 	$(info Removing pip cache to reduce framework build errors)
 	@/bin/rm -rf "${HOME}/Library/Caches/pip"
 
-clean_MANAGEDFRAMEWORKS_PYTHON_PATH:
+clean_managedframeworks_python_path:
 	$(info Removing any existing Python.framework)
 	@/usr/bin/sudo /bin/rm -rf $(MANAGEDFRAMEWORKS_PYTHON_PATH)/Python.framework
 
