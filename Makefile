@@ -81,7 +81,7 @@ $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework: $(MANAGEDFRAMEWORKS_
 	@echo "PYTHON_BUILD_VERSION=$(PYTHON_BUILD_VERSION)" >> $(GITHUB_ENV)
 
 .PHONY: verify-universal
-verify-universal: $(PYTHON_LIB_FILES) $(PYTHON_BIN_FILES)
+verify-universal: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework $(PYTHON_LIB_FILES) $(PYTHON_BIN_FILES)
 	$(info Verifying files are Universal)
 	@/usr/bin/file $^ | /usr/bin/grep "2 architectures" 1>/dev/null || (echo "Not all files are Universal"; exit $$?)
 	$(info $(words $^) files found and verified as Universal)
