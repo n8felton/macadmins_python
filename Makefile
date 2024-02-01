@@ -10,14 +10,6 @@ ifndef PYTHON_VERSION
   PYTHON_VERSION ?= 3.11.1
   $(info PYTHON_VERSION is not set. Defaulting to "$(PYTHON_VERSION)")
 endif
-ifndef DEV_APPLICATION_ID
-  DEV_APPLICATION_ID ?= -
-  $(info DEV_APPLICATION_ID is not set. Try `export DEV_APPLICATION_ID="Developer ID Application: <CORP>"`)
-endif
-ifndef DEV_INSTALLER_ID
-  DEV_INSTALLER_ID ?= -
-  $(info DEV_INSTALLER_ID is not set. Try `export DEV_INSTALLER_ID="Developer ID Installer: <CORP>"`)
-endif
 
 BREW_BIN := $(shell which brew)
 BREW_LIST = $(shell $(BREW_BIN) list)
@@ -88,6 +80,10 @@ verify-universal: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework $(P
 
 .PHONY: codesign
 codesign: $(PYTHON_LIB_FILES) $(PYTHON_BIN_FILES)
+ifndef DEV_APPLICATION_ID
+	$(eval DEV_APPLICATION_ID ?= -)
+	$(info DEV_APPLICATION_ID is not set. Try `export DEV_APPLICATION_ID="Developer ID Application: <CORP>" Defaulting to ad-hoc signing`)
+endif
 	@/usr/bin/codesign \
 	--force \
 	--preserve-metadata=identifier,entitlements,flags,runtime \
@@ -133,6 +129,9 @@ $(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.f
 productsign: $(OUTPUT_PKG_PATH)-signed.pkg
 
 $(OUTPUT_PKG_PATH)-signed.pkg: $(OUTPUT_PKG_PATH)-build.pkg
+ifndef DEV_INSTALLER_ID
+	$(error DEV_INSTALLER_ID is not set. Try `export DEV_INSTALLER_ID="Developer ID Installer: <CORP>"`)
+endif
 	@/usr/bin/productsign \
 	--timestamp \
 	--sign "$(DEV_INSTALLER_ID)" \
