@@ -166,13 +166,6 @@ endif
 ifndef NOTARY_APP_PASSWORD
 	$(error NOTARY_APP_PASSWORD is not set. Try `export NOTARY_APP_PASSWORD="T1m4ppl3"`)
 endif
-define GET_JOB_ID 
-	$$(/usr/bin/xcrun notarytool \
-		history \
-		--keychain-profile $(DEV_TEAM_ID) \
-		--output-format json \
-		| jq -r '.history[0].id' )
-endef
 	@/bin/mv $(OUTPUT_PKG_PATH)-signed.pkg $(OUTPUT_PKG_PATH).pkg
 	@/usr/bin/xcrun notarytool \
 	store-credentials \
@@ -180,20 +173,16 @@ endef
 	--apple-id $(DEV_APPLE_ID) \
 	--password $(NOTARY_APP_PASSWORD) \
 	--team-id $(DEV_TEAM_ID)
-
-	@/usr/bin/xcrun notarytool \
+	@SUBMIT_OUTPUT=$$(/usr/bin/xcrun notarytool \
 	submit \
 	$(OUTPUT_PKG_PATH).pkg \
-	--apple-id $(DEV_APPLE_ID) \
-	--password $(NOTARY_APP_PASSWORD) \
-	--team-id $(DEV_TEAM_ID) \
-	--wait
-
-	@/usr/bin/xcrun notarytool \
-	log \
-	$(call GET_JOB_ID) \
 	--keychain-profile $(DEV_TEAM_ID) \
-	$(OUTPUT_DIR)/notarytool_log.json
+	--wait | tee /dev/stderr); \
+	JOB_ID=$$(echo "$$SUBMIT_OUTPUT" | awk '/id:/ { id = $$NF } END { print id }'); \
+	/usr/bin/xcrun notarytool log \
+		$$JOB_ID \
+		--keychain-profile $(DEV_TEAM_ID) \
+		$(OUTPUT_DIR)/notarytool_log.json
 
 
 $(MANAGEDFRAMEWORKS_PYTHON_PATH):
