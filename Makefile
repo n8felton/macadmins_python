@@ -32,6 +32,7 @@ PYTHON_BASEURL := "https://www.python.org/ftp/python/%s/python-%s-macos%s.pkg"
 
 BUILD_DIR := build
 PAYLOAD_PATH := $(BUILD_DIR)/$(TYPE)/payload
+COMPONENT_PLIST := $(TMPDIR)managed_python_component.plist
 MANAGEDFRAMEWORKS_PYTHON_PATH := /Library/ManagedFrameworks/Python
 PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH := $(PAYLOAD_PATH)/$(MANAGEDFRAMEWORKS_PYTHON_PATH)
 PAYLOAD_PYTHON_VERS_PATH := $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework/Versions/$(PYTHON_BIN_VERSION)
@@ -127,10 +128,10 @@ $(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.f
 	@/usr/bin/pkgbuild \
 	--analyze \
 	--root $(PAYLOAD_PATH) \
-	/private/tmp/managed_python_component.plist
-	
+	$(COMPONENT_PLIST)
+
 	@/usr/bin/pkgbuild \
-	--component-plist /private/tmp/managed_python_component.plist \
+	--component-plist $(COMPONENT_PLIST) \
 	--identifier io.macadmins.python.$(TYPE) \
 	--install-location / \
 	--ownership recommended \
