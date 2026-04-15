@@ -25,8 +25,8 @@ VERS_PATCH := $(word 3,$(VERS))
 PYTHON_BIN_VERSION := $(VERS_MAJOR).$(VERS_MINOR)
 NEWSUBBUILD := $(shell expr 80620 + $$(git rev-list HEAD --count))
 PYTHON_BUILD_VERSION := $(PYTHON_VERSION).$(NEWSUBBUILD)
-MACOS_VERSION := 11
-PYTHON_BASEURL := "https://www.python.org/ftp/python/%s/python-%s-macos%s.pkg"
+MACOS_VERSION := 11 # Minimum supported macOS version for Python 3.11+ is 11.0, so we can hardcode this value
+PYTHON_BASEURL := https://www.python.org/ftp/python/%s/python-%s-macos%s.pkg 
 
 BUILD_DIR := build
 PAYLOAD_PATH := $(BUILD_DIR)/$(TYPE)/payload
