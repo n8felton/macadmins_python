@@ -25,7 +25,7 @@ VERS_MINOR := $(word 2,$(VERS))
 VERS_PATCH := $(word 3,$(VERS))
 
 PYTHON_BIN_VERSION := $(VERS_MAJOR).$(VERS_MINOR)
-NEWSUBBUILD := $(shell expr 80620 + $$(git rev-list HEAD~0 --count))
+NEWSUBBUILD := $(shell expr 80620 + $$(git rev-list HEAD --count))
 PYTHON_BUILD_VERSION := $(PYTHON_VERSION).$(NEWSUBBUILD)
 MACOS_VERSION := 11
 PYTHON_BASEURL := "https://www.python.org/ftp/python/%s/python-%s-macos%s.pkg"
