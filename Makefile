@@ -11,8 +11,6 @@ ifndef PYTHON_VERSION
   $(info PYTHON_VERSION is not set. Defaulting to "$(PYTHON_VERSION)")
 endif
 
-BREW_BIN := $(shell which brew)
-BREW_LIST = $(shell $(BREW_BIN) list)
 CONSOLEUSER := $(/usr/bin/stat -f "%Su" /dev/console)
 MKDIR = @mkdir -p "$(@D)"
 
@@ -226,8 +224,8 @@ clean_managedframeworks_python_path:
 
 clean_brew:
 ifdef CI
-	@$(BREW_BIN) remove $(BREW_LIST)
-	@$(BREW_BIN) install jq
+	@brew remove $$(brew list)
+	@brew install jq
 endif
 
 clean_github_env:
