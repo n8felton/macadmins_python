@@ -125,6 +125,8 @@ $(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.f
 	@mkdir -p $(PAYLOAD_PATH)/usr/local/bin/
 	@/bin/ln -sf $(PYTHON_BIN) $(PAYLOAD_PATH)/usr/local/bin/managed_python3
 	@/usr/bin/sudo /usr/sbin/chown -R ${CONSOLEUSER}:wheel $(PAYLOAD_PATH)
+	@mkdir -p $(BUILD_DIR)/$(TYPE)/scripts
+	@/bin/cp preinstall-cleanup $(BUILD_DIR)/$(TYPE)/scripts/preinstall
 	@/usr/bin/pkgbuild \
 	--analyze \
 	--root $(PAYLOAD_PATH) \
@@ -136,6 +138,7 @@ $(OUTPUT_PKG_PATH)-build.pkg: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.f
 	--install-location / \
 	--ownership recommended \
 	--root $(PAYLOAD_PATH) \
+	--scripts $(BUILD_DIR)/$(TYPE)/scripts \
 	--version $(PYTHON_BUILD_VERSION) \
 	"$(OUTPUT_PKG_PATH)-build.pkg"
 
