@@ -186,7 +186,7 @@ endif
 
 
 $(MANAGEDFRAMEWORKS_PYTHON_PATH):
-	@/usr/bin/sudo /bin/mkdir -p -m 777 "$(@D)"
+	@/usr/bin/sudo /bin/mkdir -p -m 755 "$@"
 
 $(RP_DIR)/make_relocatable_python_framework.py:
 	@$(MKDIR)
