@@ -47,6 +47,8 @@ PYTHON_BIN_FILES += $(PAYLOAD_PYTHON_VERS_PATH)/Python
 PYTHON_LIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -perm -u=x 2>/dev/null)
 # PYTHON_DYLIB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.dylib' 2>/dev/null)
 # PYTHON_SO_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/lib" -type f -name '*.so' 2>/dev/null)
+PYTHON_FRAMEWORK_BUNDLES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/Frameworks" -maxdepth 2 -name '*.framework' -type d 2>/dev/null)
+PYTHON_FRAMEWORK_STUB_FILES = $(shell /usr/bin/find "$(PAYLOAD_PYTHON_VERS_PATH)/Frameworks" -type f -name 'lib*stub*.a' 2>/dev/null)
 
 .PHONY: all
 all: build
@@ -82,7 +84,18 @@ verify-universal: $(PAYLOAD_MANAGEDFRAMEWORKS_PYTHON_PATH)/Python3.framework $(P
 codesign: $(PYTHON_LIB_FILES) $(PYTHON_BIN_FILES)
 ifndef DEV_APPLICATION_ID
 	$(eval DEV_APPLICATION_ID ?= -)
-	$(info DEV_APPLICATION_ID is not set. Try `export DEV_APPLICATION_ID="Developer ID Application: <CORP>" Defaulting to ad-hoc signing`)
+	$(info DEV_APPLICATION_ID is not set. Try `export DEV_APPLICATION_ID="Developer ID Application: <CORP>"`. Defaulting to ad-hoc signing)
+endif
+ifneq ($(PYTHON_FRAMEWORK_STUB_FILES),)
+	@/usr/bin/codesign --remove-signature $(PYTHON_FRAMEWORK_STUB_FILES) 2>/dev/null || true
+endif
+ifneq ($(PYTHON_FRAMEWORK_BUNDLES),)
+	@/usr/bin/codesign \
+	--force \
+	--deep \
+	--timestamp \
+	--sign "$(DEV_APPLICATION_ID)" \
+	$(PYTHON_FRAMEWORK_BUNDLES)
 endif
 	@/usr/bin/codesign \
 	--force \
