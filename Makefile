@@ -165,8 +165,8 @@ endif
 ifndef DEV_TEAM_ID
 	$(error DEV_TEAM_ID is not set. Try `export DEV_TEAM_ID="8XCUU22SN2"`)
 endif
-ifndef NOTARY_PASS
-	$(error NOTARY_PASS is not set. Try `export NOTARY_PASS="T1m4ppl3"`)
+ifndef NOTARY_APP_PASSWORD
+	$(error NOTARY_APP_PASSWORD is not set. Try `export NOTARY_APP_PASSWORD="T1m4ppl3"`)
 endif
 define GET_JOB_ID 
 	$$(/usr/bin/xcrun notarytool \
@@ -180,14 +180,14 @@ endef
 	store-credentials \
 	$(DEV_TEAM_ID) \
 	--apple-id $(DEV_APPLE_ID) \
-	--password $(NOTARY_PASS) \
+	--password $(NOTARY_APP_PASSWORD) \
 	--team-id $(DEV_TEAM_ID)
 
 	@/usr/bin/xcrun notarytool \
 	submit \
 	$(OUTPUT_PKG_PATH).pkg \
 	--apple-id $(DEV_APPLE_ID) \
-	--password $(NOTARY_PASS) \
+	--password $(NOTARY_APP_PASSWORD) \
 	--team-id $(DEV_TEAM_ID) \
 	--wait
 
