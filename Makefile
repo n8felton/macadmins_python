@@ -213,7 +213,7 @@ clean_managedframeworks_python_path:
 
 clean_brew:
 ifdef CI
-	@brew remove $$(brew list)
+	@brew remove --quiet $$(brew list)
 	@brew install jq
 endif
 
