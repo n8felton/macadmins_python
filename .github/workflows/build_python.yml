@@ -24,9 +24,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - python_version: "3.11.7"
-          - python_version: "3.12.1"
-          - python_version: "3.13.5"
+          - python_version: "3.10.11"
+          - python_version: "3.11.9"
+          - python_version: "3.12.10"
+          - python_version: "3.13.13"
+          - python_version: "3.14.4"
 
     steps:
     - name: Checkout python repo

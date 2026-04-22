@@ -7,7 +7,7 @@ ifndef TYPE
   $(info TYPE is not set. Defaulting to "$(TYPE)".)
 endif
 ifndef PYTHON_VERSION
-  PYTHON_VERSION ?= 3.11.1
+  PYTHON_VERSION ?= 3.14.4
   $(info PYTHON_VERSION is not set. Defaulting to "$(PYTHON_VERSION)")
 endif
 
