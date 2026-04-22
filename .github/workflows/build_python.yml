@@ -1,0 +1,118 @@
+name: Build Python
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: write
+
+env:
+  TYPE: "recommended"
+  DEV_APPLE_ID: ${{ secrets.DEV_APPLE_ID_MAOS }}
+  DEV_TEAM_ID: ${{ secrets.DEV_TEAM_ID_MAOS }}
+  DEV_INSTALLER_ID: ${{ vars.DEV_INSTALLER_ID }}
+  DEV_APPLICATION_ID: ${{ vars.DEV_APPLICATION_ID }}
+  NOTARY_APP_PASSWORD: ${{ secrets.NOTARY_APP_PASSWORD_MAOS }}
+  PYTHONUNBUFFERED: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    env:
+      PYTHON_VERSION: ${{ matrix.python_version }}
+    strategy:
+      matrix:
+        include:
+          - python_version: "3.10.11"
+          - python_version: "3.11.9"
+          - python_version: "3.12.10"
+          - python_version: "3.13.13"
+          - python_version: "3.14.4"
+
+    steps:
+    - name: Checkout python repo
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        fetch-depth: 0
+
+    - name: Install Apple Developer ID Application certificates
+      uses: apple-actions/import-codesign-certs@b610f78488812c1e56b20e6df63ec42d833f2d14 # v6.0.0
+      with:
+        keychain-password: ${{ github.run_id }}
+        p12-file-base64: ${{ secrets.APP_CERTIFICATES_P12_MAOS }}
+        p12-password: ${{ secrets.APP_CERTIFICATES_P12_PASSWORD_MAOS }}
+
+    - name: Install Apple Developer ID Installer certificates
+      uses: apple-actions/import-codesign-certs@b610f78488812c1e56b20e6df63ec42d833f2d14 # v6.0.0
+      with:
+        create-keychain: false # do not create a new keychain for this value
+        keychain-password: ${{ github.run_id }}
+        p12-file-base64: ${{ secrets.PKG_CERTIFICATES_P12_MAOS }}
+        p12-password: ${{ secrets.PKG_CERTIFICATES_P12_PASSWORD_MAOS }}
+
+    - name: Ensure a clean build environment
+      run: make clean
+
+    - name: Build Mac Admins Managed Python
+      run: make build
+
+    - name: Verify all files are Universal
+      run: make verify-universal
+
+    - name: Codesign all Python files
+      run: make codesign
+
+    - name: Verify codesign information
+      run: make verify-codesign
+
+    - name: Create a PKG
+      run: make pkgbuild
+
+    - name: Sign the PKG
+      run: make productsign
+
+    - name: Notarize the PKG
+      run: make notarize
+
+    - name: Upload packages
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: packages-${{ matrix.python_version }}
+        path: output/*.pkg
+
+    - name: Upload logs
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: logs-${{ matrix.python_version }}
+        path: output/notarytool_log.json
+
+    - name: Create Release
+      if: startsWith(github.event.ref, 'refs/tags/v')
+      id: create_release
+      uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+      with:
+        name: Python ${{env.PYTHON_BUILD_VERSION}}
+        tag_name: v${{env.PYTHON_BUILD_VERSION}}
+        draft: false
+        prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+        body: |
+            # Notes
+            Python ${{ matrix.python_version }} Framework
+
+            ## Changes
+            - Upgraded Python to ${{ matrix.python_version }}
+            **Note: Some of these updates may have breaking changes. Always test your code before deploying to production!**
+
+            Please see the `requirements_recommended.txt` for the current libraries being used.
+
+            # Flavors of Python
+            At this time, the automated build process will **only** create the Recommended package
+
+            ## Recommended
+            This is a Python.framework that contains everything from minimal, and a few libraries that various well known open source projects require.
+
+            ## Signing/Notarization
+            The signed package is fully notarized, including the Python.framework file
+        files: ${{github.workspace}}/output/*.pkg
